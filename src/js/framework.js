@@ -51,19 +51,21 @@ export class World {
     _freeIds: Array<number>;
     _glContext: any;
     _aspect: number;
+    _fov: number;
     _maxWidth: number;
     _projectionMatrix: any;
     _entities: Map<number,Entity>;
     _simSystems: Array<SimSystem>;
     _renderSystems: Array<RenderSystem>;
 
-    constructor(glContext: any,maxWidth: number,aspect: number) {
+    constructor(glContext: any,maxWidth: number,aspect: number,fov: number) {
         this._simSystems = [];
         this._renderSystems = [];
         this._entities = new Map();
         this._nextId = 0;
         this._freeIds = [];
         this._aspect = aspect;
+        this._fov = fov;
         this._maxWidth = maxWidth;
         this._glContext = glContext;
         this._projectionMatrix = twgl.m4.create();
@@ -111,12 +113,10 @@ export class World {
                 width,
                 height
             );
-            twgl.m4.frustum(
-                0,
-                width,
-                height,
-                0,
-                0,
+            twgl.m4.perspective(
+                this._fov * (Math.PI / 180),
+                width / height,
+                0.5,
                 1000,
                 this._projectionMatrix
             );

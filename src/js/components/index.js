@@ -1,6 +1,12 @@
 /* @flow */
 
-export class MyComponent {
-    static Type: string = 'MY_COMPONENT';
-    getType(): string { return MyComponent.Type; }
+export class CubeComponent {
+    static Type: string = 'CUBE_COMPONENT';
+    getType(): string { return CubeComponent.Type; }
+
+    rotation: number;
+
+    constructor() {
+        this.rotation = 0;
+    }
 }

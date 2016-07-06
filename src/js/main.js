@@ -8,7 +8,7 @@ import renderers from './render';
 const canvas = document.getElementById('canvas');
 const gl = twgl.getWebGLContext(canvas);
 
-const world = new World(gl,1920,16/9);
+const world = new World(gl,1920,16/9,45);
 world.setSimSystems(sims());
 world.setRenderSystems(renderers(gl));
 world.resizeViewPort(window.innerWidth,window.innerHeight);

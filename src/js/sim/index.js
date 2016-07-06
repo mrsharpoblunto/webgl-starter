@@ -1,19 +1,9 @@
 /* @flow */
 import type { SimSystem } from '../framework';
-
-class MySimSystem {
-    constructor() {
-    }
-    onAddEntity(): void {
-    }
-    onRemoveEntity(): void {
-    }
-    simulate(timestep: number): void {
-    }
-}
+import CubeSystem from './cube-system';
 
 export default function(): Array<SimSystem> {
     return [
-        new MySimSystem(),
+        new CubeSystem(),
     ];
 }
