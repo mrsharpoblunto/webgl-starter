@@ -3,8 +3,8 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var ROOT_PATH = path.resolve(__dirname);
-var ENTRY_PATH = path.resolve(ROOT_PATH, 'src/js/main.js');
-var SRC_PATH = path.resolve(ROOT_PATH, 'src/js');
+var ENTRY_PATH = path.resolve(ROOT_PATH, 'src/main.js');
+var SRC_PATH = path.resolve(ROOT_PATH, 'src');
 var TEMPLATE_PATH = path.resolve(ROOT_PATH, 'src/index.html');
 var SHADER_PATH = path.resolve(ROOT_PATH, 'src/shaders');
 var BUILD_PATH = path.resolve(ROOT_PATH, 'dist');
@@ -26,6 +26,12 @@ module.exports = {
             __DEV__: debug
         })
     ],
+    resolve: {
+      modules: [
+        path.resolve(SRC_PATH),
+        'node_modules'
+      ]
+    },
     module: {
         loaders: [
             {

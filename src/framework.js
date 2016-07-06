@@ -11,7 +11,7 @@ export interface RenderSystem {
     setProjectionMatrix(matrix: any): void;
     onAddEntity(entity: Entity): void;
     onRemoveEntity(entity: Entity): void;
-    render(alpha: number): void;
+    render(gl: any, alpha: number): void;
 }
 
 export interface Component {
@@ -89,6 +89,16 @@ export class World {
             }
         }
     }
+    clear(): void {
+        for (let [id,ent] of this._entities) {
+            for (let system of this._simSystems) {
+                system.onRemoveEntity(ent);
+            }
+            for (let system of this._renderSystems) {
+                system.onRemoveEntity(ent);
+            }
+        }
+    }
     resizeViewPort(viewPortWidth: number,viewPortHeight: number): void {
         let width = Math.min(this._maxWidth,viewPortWidth);
         let height = width/ this._aspect;
@@ -134,7 +144,7 @@ export class World {
             this._glContext.DEPTH_BUFFER_BIT
         );
         for (let system of this._renderSystems) {
-            system.render(alpha);
+            system.render(this._glContext,alpha);
         }
     }
     createEntity(): Entity {

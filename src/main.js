@@ -1,20 +1,29 @@
 /* @flow */
 import twgl from 'twgl.js';
-import { World, WorldRunner } from './framework';
-import init from './world-builder';
-import sims from './sim';
-import renderers from './render';
+
+import { World, WorldRunner } from 'framework';
+import init from 'world-builder';
+import sims from 'sim';
+import renderers from 'render';
 
 const canvas = document.getElementById('canvas');
 const gl = twgl.getWebGLContext(canvas);
 
-const world = new World(gl,1920,16/9,45);
+const world = new World(
+    gl,
+    1920, // max horizontal resolution
+    16/9, // view area aspect ratio
+    45,   // camera field of view
+);
 world.setSimSystems(sims());
 world.setRenderSystems(renderers(gl));
 world.resizeViewPort(window.innerWidth,window.innerHeight);
 init(world);
 
-const runner = new WorldRunner(world,60);
+const runner = new WorldRunner(
+    world, // the world to simulate
+    60,    // desired simulation frames per second
+);
 runner.start();
 
 window.addEventListener('resize',function() {
@@ -32,6 +41,11 @@ if (__DEV__) {
             console.log('Hot reloading Render systems');
             world.setRenderSystems(require('./render').default(gl));
         });
+        module.hot.accept('./world-builder',function() {
+            console.log('Hot reloading World');
+            world.clear();
+            require('./world-builder').default(world);
+        });
 
         // don't hot reload this file as the world is stateful
         // and we only want to hot reload stateless stuff like
@@ -39,4 +53,3 @@ if (__DEV__) {
         module.hot.decline();
     }
 }
-

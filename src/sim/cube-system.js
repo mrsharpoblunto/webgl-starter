@@ -1,6 +1,6 @@
 /* @flow */
-import type { Entity } from '../framework';
-import * as Components from '../components'
+import type { Entity } from 'framework';
+import * as Components from 'components';
 
 const ROTATION_SPEED = 0.001;
 
@@ -13,13 +13,13 @@ export default class CubeSystem {
     onAddEntity(entity: Entity): void {
         const cube = entity.getComponent(Components.CubeComponent.Type);
         if (cube) {
-           this._cubes.add(cube); 
+           this._cubes.add(cube);
         }
     }
     onRemoveEntity(entity: Entity): void {
         const cube = entity.getComponent(Components.CubeComponent.Type);
         if (cube) {
-           this._cubes.delete(cube); 
+           this._cubes.delete(cube);
         }
     }
     simulate(timestep: number): void {

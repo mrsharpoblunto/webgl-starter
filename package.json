@@ -1,25 +1,30 @@
 {
-    "name": "webgl-starter",
-    "version": "1.0.0",
-    "description": "Boilerplate project for building a game with WebGL and a component entity system.",
-    "scripts": {
-        "build": "NODE_ENV=production webpack -p --progress",
-        "watch": "webpack --progress --watch",
-        "dev": "webpack-dev-server --content-base dist/ --hot --hot-only --inline"
-    },
-    "author": "Glenn Conner <glenn@sharpoblunto.com> (https://sharpoblunto.com)",
-    "license": "MIT",
-    "devDependencies": {
-        "babel-core": "^6.1.19",
-        "babel-loader": "^6.1.0",
-        "babel-plugin-transform-flow-strip-types": "^6.8.0",
-        "babel-preset-es2015": "^6.1.18",
-        "babel-preset-stage-0": "^6.5.0",
-        "flow-bin": "^0.27.0",
-        "html-webpack-plugin": "^2.8.1",
-        "twgl.js": "^1.7.2",
-        "webpack": "^2.1.0-beta",
-        "webpack-dev-server": "^2.1.0-beta",
-        "webpack-glsl-loader": "^1.0.1"
-    }
+  "name": "webgl-starter",
+  "version": "1.0.0",
+  "description": "Boilerplate project for building a game with WebGL and a component entity system.",
+  "scripts": {
+    "build": "NODE_ENV=production webpack -p --progress",
+    "watch": "webpack --progress --watch",
+    "dev": "webpack-dev-server --content-base dist/ --hot --hot-only --inline"
+  },
+  "author": "Glenn Conner <glenn.conner@sharpoblunto.com> (https://sharpoblunto.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrsharpoblunto/webgl-starter.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.1.19",
+    "babel-loader": "^6.1.0",
+    "babel-plugin-transform-flow-strip-types": "^6.8.0",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-preset-stage-0": "^6.5.0",
+    "empty": "^0.10.1",
+    "flow-bin": "^0.27.0",
+    "html-webpack-plugin": "^2.8.1",
+    "twgl.js": "^1.7.2",
+    "webpack": "^2.1.0-beta",
+    "webpack-dev-server": "^2.1.0-beta",
+    "webpack-glsl-loader": "^1.0.1"
+  }
 }
