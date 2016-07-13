@@ -81,10 +81,6 @@ export default class CubeRenderSystem
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     }
 
-    systemWillMount(){}
-
-    systemWillUnmount(){}
-
     worldAddingEntity(entity: Entity): void {
         const cube = entity.getComponent(Components.CubeComponent.Type);
         if (cube) {

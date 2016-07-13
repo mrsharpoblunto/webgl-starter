@@ -11,10 +11,10 @@ export default class CubeSystem {
         this._cubes = new Set();
     }
 
-    systemWillMount(): void {
+    systemWillMount(canvas: any): void {
     }
 
-    systemWillUnmount(): void {
+    systemWillUnmount(canvas: any): void {
     }
 
     worldAddingEntity(entity: Entity): void {

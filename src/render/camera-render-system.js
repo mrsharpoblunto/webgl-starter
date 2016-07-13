@@ -10,12 +10,6 @@ export default class CameraRenderSystem
     constructor(gl: any) {
     }
 
-    systemWillMount(): void {
-    }
-
-    systemWillUnmount(): void {
-    }
-
     worldAddingEntity(entity: Entity): void {
         const camera = entity.getComponent(Components.CameraComponent.Type);
         if (camera) {

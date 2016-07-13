@@ -91,8 +91,6 @@ export default class CameraComponent {
         const right = glm.vec3.create();
         const up = glm.vec3.create();
         glm.vec3.sub(lookAt,focalPoint,this._position);
-        console.log(position);
-        console.log(lookAt);
         glm.vec3.normalize(lookAt,lookAt);
         glm.vec3.cross(right,lookAt,upVec || UP);
         glm.vec3.normalize(right,right);

@@ -2,16 +2,14 @@
 import twgl from 'twgl.js';
 
 export interface SimSystem {
-    systemWillMount(): void;
-    systemWillUnmount(): void;
+    systemWillMount(canvas: any): void;
+    systemWillUnmount(canvas: any): void;
     worldAddingEntity(entity: Entity): void;
     worldRemovingEntity(entity: Entity): void;
     simulate(timestep: number): void;
 }
 
 export interface RenderSystem {
-    systemWillMount(): void;
-    systemWillUnmount(): void;
     worldAddingEntity(entity: Entity): void;
     worldRemovingEntity(entity: Entity): void;
     render(gl: any, alpha: number): void;
@@ -92,17 +90,7 @@ export class World {
         }
     }
     mountRenderSystems(systems: Array<RenderSystem>): void {
-        for (let system of this._renderSystems) {
-            if (system.systemWillUnmount) {
-                system.systemWillUnmount(this._canvas);
-            }
-        }
         this._renderSystems = systems;
-        for (let system of this._renderSystems) {
-            if (system.systemWillMount) {
-                system.systemWillMount(this._canvas);
-            }
-        }
         for (let [id,ent] of this._entities) {
             for (let system of this._renderSystems) {
                 system.worldAddingEntity(ent);

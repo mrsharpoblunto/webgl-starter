@@ -3,6 +3,9 @@ import type { Entity } from 'framework';
 import glm from 'gl-matrix';
 import * as Components from 'components';
 
+const ROTATION_SPEED = 0.005;
+const MOVEMENT_SPEED = 0.1;
+
 export default class CameraSystem {
     _camera: ?Components.CameraComponent;
     _keys: Map<string,boolean>;
@@ -92,15 +95,15 @@ export default class CameraSystem {
                 right
             );
             glm.vec3.normalize(delta,delta);
-            glm.vec3.scale(delta,delta,0.1);
+            glm.vec3.scale(delta,delta,MOVEMENT_SPEED);
             camera.move(delta);
         }
 
         if (this._mouse[0]) {
-            camera.rotYaw(this._mouse[0] / 200);
+            camera.rotYaw(this._mouse[0] * ROTATION_SPEED);
         }
         if (this._mouse[1]) {
-            camera.rotPitch(this._mouse[1] / 200);
+            camera.rotPitch(this._mouse[1] * ROTATION_SPEED);
         }
         this._mouse[0] = this._mouse[1] = 0;
     }
