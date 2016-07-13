@@ -5,7 +5,7 @@
   "scripts": {
     "build": "NODE_ENV=production webpack -p --progress",
     "watch": "webpack --progress --watch",
-    "dev": "webpack-dev-server --content-base dist/ --hot --hot-only --inline"
+    "dev": "webpack-dev-server --host 0.0.0.0 --content-base dist/ --hot --hot-only --inline"
   },
   "author": "Glenn Conner <glenn.conner@sharpoblunto.com> (https://sharpoblunto.com)",
   "repository": {
@@ -21,6 +21,7 @@
     "babel-preset-stage-0": "^6.5.0",
     "empty": "^0.10.1",
     "flow-bin": "^0.27.0",
+    "gl-matrix": "^2.3.2",
     "html-webpack-plugin": "^2.8.1",
     "twgl.js": "^1.7.2",
     "webpack": "^2.1.0-beta",

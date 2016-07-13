@@ -1,5 +1,6 @@
 /* @flow */
 import twgl from 'twgl.js';
+import glm from 'gl-matrix';
 import type { Entity } from 'framework';
 import cubeFrag from 'shaders/cube_frag.glsl';
 import cubeVert from 'shaders/cube_vert.glsl';
@@ -8,6 +9,7 @@ import * as Components from 'components';
 export default class CubeRenderSystem
 {
     _cubes: Set<Components.CubeComponent>;
+    _camera: ?Components.CameraComponent;
     _projection: any;
     _program: any;
     _uLightWorldPosLoc: any;
@@ -78,40 +80,77 @@ export default class CubeRenderSystem
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     }
-    onAddEntity(entity: Entity): void {
+
+    systemWillMount(){}
+
+    systemWillUnmount(){}
+
+    worldAddingEntity(entity: Entity): void {
         const cube = entity.getComponent(Components.CubeComponent.Type);
         if (cube) {
            this._cubes.add(cube);
         }
+        const camera = entity.getComponent(Components.CameraComponent.Type);
+        if (camera) {
+            this._camera = camera;
+        }
     }
-    onRemoveEntity(entity: Entity): void {
+
+    worldRemovingEntity(entity: Entity): void {
         const cube = entity.getComponent(Components.CubeComponent.Type);
         if (cube) {
            this._cubes.delete(cube);
         }
+        const camera = entity.getComponent(Components.CameraComponent.Type);
+        if (camera) {
+            this._camera = null;
+        }
     }
-    setProjectionMatrix(matrix: any): void {
-        this._projection = matrix;
-    }
+
     render(gl: any, alpha: number): void {
-        const eye = [1, 4, -6];
-        const target = [0, 0, 0];
-        const up = [0, 1, 0];
-        const camera = twgl.m4.lookAt(eye, target, up);
-        const view = twgl.m4.inverse(camera);
-        const viewProjection = twgl.m4.multiply(view, this._projection);
+        if (!this._camera) return;
+        const camera = this._camera;
+
+        const world = glm.mat4.create();
+        const view = camera.getViewMatrix();
+        const viewProjection = glm.mat4.create();
+        const worldViewProjection = glm.mat4.create();
+        const position = glm.mat4.create();
+        const rotation = glm.mat4.create();
+        const invView = glm.mat4.create();
+        const invTransposeWorld = glm.mat4.create();
+
+        glm.mat4.invert(invView,view);
+        glm.mat4.mul(
+            viewProjection,
+            camera.getProjectionMatrix(),
+            view
+        );
 
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.CULL_FACE);
 
+
         for (const cube of this._cubes) {
-            const world =
-                twgl.m4.multiply(
-                twgl.m4.rotationY(cube.rotation),
-                twgl.m4.translate(
-                    twgl.m4.identity(),
-                    cube.position
+            glm.mat4.identity(position);
+            glm.mat4.identity(rotation);
+            glm.mat4.mul(
+                world,
+                glm.mat4.translate(
+                    position,
+                    position,
+                    cube.position,
                 ),
+                glm.mat4.rotateY(rotation,rotation,cube.rotation),
+            );
+            glm.mat4.mul(
+                worldViewProjection,
+                viewProjection,
+                world
+            );
+            glm.mat4.transpose(
+                invTransposeWorld,
+                glm.mat4.invert(invTransposeWorld,world)
             );
 
             gl.useProgram(this._program);
@@ -122,10 +161,10 @@ export default class CubeRenderSystem
             gl.uniform1f(this._uShininessLoc, 50);
             gl.uniform1f(this._uSpecularFactorLoc, 1);
             gl.uniform1i(this._uDiffuseLoc, 0);
-            gl.uniformMatrix4fv(this._uViewInverseLoc, false, camera);
+            gl.uniformMatrix4fv(this._uViewInverseLoc, false, invView);
             gl.uniformMatrix4fv(this._uWorldLoc, false, world);
-            gl.uniformMatrix4fv(this._uWorldInverseTransposeLoc, false, twgl.m4.transpose(twgl.m4.inverse(world)));
-            gl.uniformMatrix4fv(this._uWorldViewProjectionLoc, false, twgl.m4.multiply(world, viewProjection));
+            gl.uniformMatrix4fv(this._uWorldInverseTransposeLoc, false, invTransposeWorld);
+            gl.uniformMatrix4fv(this._uWorldViewProjectionLoc, false, worldViewProjection);
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this._tex);
             gl.bindBuffer(gl.ARRAY_BUFFER, this._positionBuffer);

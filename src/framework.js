@@ -2,15 +2,18 @@
 import twgl from 'twgl.js';
 
 export interface SimSystem {
-    onAddEntity(entity: Entity): void;
-    onRemoveEntity(entity: Entity): void;
+    systemWillMount(): void;
+    systemWillUnmount(): void;
+    worldAddingEntity(entity: Entity): void;
+    worldRemovingEntity(entity: Entity): void;
     simulate(timestep: number): void;
 }
 
 export interface RenderSystem {
-    setProjectionMatrix(matrix: any): void;
-    onAddEntity(entity: Entity): void;
-    onRemoveEntity(entity: Entity): void;
+    systemWillMount(): void;
+    systemWillUnmount(): void;
+    worldAddingEntity(entity: Entity): void;
+    worldRemovingEntity(entity: Entity): void;
     render(gl: any, alpha: number): void;
 }
 
@@ -49,16 +52,16 @@ export class Entity {
 export class World {
     _nextId: number;
     _freeIds: Array<number>;
+    _canvas: any;
     _glContext: any;
     _aspect: number;
     _fov: number;
     _maxWidth: number;
-    _projectionMatrix: any;
     _entities: Map<number,Entity>;
     _simSystems: Array<SimSystem>;
     _renderSystems: Array<RenderSystem>;
 
-    constructor(glContext: any,maxWidth: number,aspect: number,fov: number) {
+    constructor(canvas: any,glContext: any,maxWidth: number,aspect: number,fov: number) {
         this._simSystems = [];
         this._renderSystems = [];
         this._entities = new Map();
@@ -67,35 +70,52 @@ export class World {
         this._aspect = aspect;
         this._fov = fov;
         this._maxWidth = maxWidth;
+        this._canvas = canvas;
         this._glContext = glContext;
-        this._projectionMatrix = twgl.m4.create();
     }
-    setSimSystems(systems: Array<SimSystem>): void {
+    mountSimSystems(systems: Array<SimSystem>): void {
+        for (let system of this._simSystems) {
+            if (system.systemWillUnmount) {
+                system.systemWillUnmount(this._canvas);
+            }
+        }
         this._simSystems = systems;
+        for (let system of this._simSystems) {
+            if (system.systemWillMount) {
+                system.systemWillMount(this._canvas);
+            }
+        }
         for (let [id,ent] of this._entities) {
             for (let system of this._simSystems) {
-                system.onAddEntity(ent);
+                system.worldAddingEntity(ent);
             }
         }
     }
-    setRenderSystems(systems: Array<RenderSystem>): void {
+    mountRenderSystems(systems: Array<RenderSystem>): void {
+        for (let system of this._renderSystems) {
+            if (system.systemWillUnmount) {
+                system.systemWillUnmount(this._canvas);
+            }
+        }
         this._renderSystems = systems;
         for (let system of this._renderSystems) {
-            system.setProjectionMatrix(this._projectionMatrix);
+            if (system.systemWillMount) {
+                system.systemWillMount(this._canvas);
+            }
         }
         for (let [id,ent] of this._entities) {
             for (let system of this._renderSystems) {
-                system.onAddEntity(ent);
+                system.worldAddingEntity(ent);
             }
         }
     }
     clear(): void {
         for (let [id,ent] of this._entities) {
             for (let system of this._simSystems) {
-                system.onRemoveEntity(ent);
+                system.worldRemovingEntity(ent);
             }
             for (let system of this._renderSystems) {
-                system.onRemoveEntity(ent);
+                system.worldRemovingEntity(ent);
             }
         }
     }
@@ -123,13 +143,6 @@ export class World {
                 width,
                 height
             );
-            twgl.m4.perspective(
-                this._fov * (Math.PI / 180),
-                width / height,
-                0.5,
-                1000,
-                this._projectionMatrix
-            );
         }
     }
     simulate(timestep: number): void {
@@ -147,7 +160,7 @@ export class World {
             system.render(this._glContext,alpha);
         }
     }
-    createEntity(): Entity {
+    createEntity(builder: (entity: Entity,options: any) => Entity, options: any): Entity {
         let id: number;
         if (this._freeIds.length) {
             id = this._freeIds[this._freeIds.length - 1];
@@ -155,34 +168,34 @@ export class World {
         } else {
             id = this._nextId++;
         }
-        const entity = new Entity(id,this);
+        const entity = builder(new Entity(id,this),options);
         this._entities.set(entity.id,entity);
         for (let system of this._simSystems) {
-            system.onAddEntity(entity);
+            system.worldAddingEntity(entity);
         }
         for (let system of this._renderSystems) {
-            system.onAddEntity(entity);
+            system.worldAddingEntity(entity);
         }
         return entity;
     }
     removeEntity(entity: Entity): void {
         for (let system of this._simSystems) {
-            system.onRemoveEntity(entity);
+            system.worldRemovingEntity(entity);
         }
         for (let system of this._renderSystems) {
-            system.onRemoveEntity(entity);
+            system.worldRemovingEntity(entity);
         }
         this._entities.delete(entity.id);
         this._freeIds.push(entity.id);
     }
     changeEntity(entity: Entity): void {
         for (let system of this._simSystems) {
-            system.onRemoveEntity(entity);
-            system.onAddEntity(entity);
+            system.worldRemovingEntity(entity);
+            system.worldAddingEntity(entity);
         }
         for (let system of this._renderSystems) {
-            system.onRemoveEntity(entity);
-            system.onAddEntity(entity);
+            system.worldRemovingEntity(entity);
+            system.worldAddingEntity(entity);
         }
     }
     findEntity(id: number): Entity | void {

@@ -1,6 +1,7 @@
 /* @flow */
 import type { World } from 'framework';
 import * as Builders from 'builders';
+import glm from 'gl-matrix';
 
 /**
  * This function is responsible for initializing the world state. Once
@@ -8,9 +9,20 @@ import * as Builders from 'builders';
  * world
  */
 export default function buildWorld(world: World): void {
-    for (let x = -10; x < 10; x+= 4) {
-        for (let y = -10; y < 10; y+= 4) {
-                Builders.cube(world,[x,y,0]);
+    world.createEntity(Builders.camera,{
+        lockPitch: true,
+        fov: 45,
+        position: glm.vec3.fromValues(0,5,10),
+        focalPoint: glm.vec3.fromValues(0,0,0),
+    });
+
+    const INC = 5;
+    const MAX = 100;
+        for (let x = -MAX; x < MAX; x+= INC) {
+            for (let z = -MAX; z < MAX; z+= INC) {
+            world.createEntity(Builders.cube,{ 
+                position: glm.vec3.fromValues(x,0,z),
+            });
         }
     }
 }

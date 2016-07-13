@@ -10,13 +10,20 @@ export default class CubeSystem {
     constructor() {
         this._cubes = new Set();
     }
-    onAddEntity(entity: Entity): void {
+
+    systemWillMount(): void {
+    }
+
+    systemWillUnmount(): void {
+    }
+
+    worldAddingEntity(entity: Entity): void {
         const cube = entity.getComponent(Components.CubeComponent.Type);
         if (cube) {
            this._cubes.add(cube);
         }
     }
-    onRemoveEntity(entity: Entity): void {
+    worldRemovingEntity(entity: Entity): void {
         const cube = entity.getComponent(Components.CubeComponent.Type);
         if (cube) {
            this._cubes.delete(cube);

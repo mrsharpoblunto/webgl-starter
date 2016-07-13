@@ -5,9 +5,9 @@ export default class CubeComponent {
     getType(): string { return CubeComponent.Type; }
 
     rotation: number;
-    position: Array<number>;
+    position: Vec3;
 
-    constructor(position: Array<number>) {
+    constructor(position: Vec3) {
         this.rotation = 0;
         this.position = position;
     }

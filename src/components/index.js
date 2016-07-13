@@ -1,8 +1,10 @@
 /* @flow */
 import CubeComponent from 'components/cube';
+import CameraComponent from 'components/camera';
 
 export {
     CubeComponent,
+    CameraComponent,
 }
 
 if (__DEV__) {

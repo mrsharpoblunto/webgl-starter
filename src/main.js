@@ -7,16 +7,18 @@ import sims from 'sim';
 import renderers from 'render';
 
 const canvas = document.getElementById('canvas');
+canvas.focus();
 const gl = twgl.getWebGLContext(canvas);
 
 const world = new World(
+    canvas,
     gl,
     1920, // max horizontal resolution
     16/9, // view area aspect ratio
     45,   // camera field of view
 );
-world.setSimSystems(sims());
-world.setRenderSystems(renderers(gl));
+world.mountSimSystems(sims());
+world.mountRenderSystems(renderers(gl));
 world.resizeViewPort(window.innerWidth,window.innerHeight);
 init(world);
 
@@ -35,11 +37,11 @@ if (__DEV__) {
     if (module.hot) {
         module.hot.accept('./sim',function() {
             console.log('Hot reloading Sim systems');
-            world.setSimSystems(require('./sim').default());
+            world.mountSimSystems(require('./sim').default());
         });
         module.hot.accept('./render',function() {
             console.log('Hot reloading Render systems');
-            world.setRenderSystems(require('./render').default(gl));
+            world.mountRenderSystems(require('./render').default(gl));
         });
         module.hot.accept('./world-builder',function() {
             console.log('Hot reloading World');
