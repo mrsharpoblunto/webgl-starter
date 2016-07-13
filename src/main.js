@@ -9,6 +9,7 @@ import renderers from 'render';
 const canvas = document.getElementById('canvas');
 canvas.focus();
 const gl = twgl.getWebGLContext(canvas);
+twgl.setDefaults({attribPrefix: 'a_'});
 
 const world = new World(
     canvas,

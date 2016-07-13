@@ -11,7 +11,7 @@ export default class CameraComponent {
 
     _lockPitch: boolean;
     _accumPitch: number;
-    _qRotation: Quarternion;
+    _rotation: Quarternion;
     _position: Vec3;
     _fov: number;
     _projectionMatrix: Mat4;
@@ -24,7 +24,7 @@ export default class CameraComponent {
         this._position = glm.vec3.create();
         this._projectionMatrix = glm.mat4.create();
         this._viewMatrix = glm.mat4.create();
-        this._qRotation = glm.quat.create();
+        this._rotation = glm.quat.create();
         this.setFocalPointAndPosition(
             glm.vec3.fromValues.apply(glm.vec3,focalPoint),
             glm.vec3.fromValues.apply(glm.vec3,position)
@@ -41,12 +41,43 @@ export default class CameraComponent {
         );
     }
 
-    getProjectionMatrix(): Mat4 {
-        return this._projectionMatrix;
+    setAxes(lookAt: Vec3, up: Vec3, right: Vec3): void {
+        glm.quat.setAxes(this._rotation,lookAt,right,up);
+        if (this._lockPitch) {
+            this._accumPitch = Math.asin(lookAt[1] * -1);
+        }
+    }
+
+    setFocalPoint(focalPoint: Vec3, up: ?Vec3): void {
+        this.setFocalPointAndPosition(focalPoint, this._position, up);
+    }
+
+    setFocalPointAndPosition(focalPoint: Vec3, position: Vec3, upVec: ?Vec3): void {
+        glm.vec3.copy(this._position,position);
+
+        const lookAt = glm.vec3.create();
+        const right = glm.vec3.create();
+        const up = glm.vec3.create();
+        glm.vec3.sub(lookAt,focalPoint,this._position);
+        glm.vec3.normalize(lookAt,lookAt);
+        glm.vec3.cross(right,lookAt,upVec || UP);
+        glm.vec3.normalize(right,right);
+        glm.vec3.cross(up,right,lookAt);
+        glm.vec3.normalize(up,up);
+
+        this.setAxes(lookAt, up, right);
+    }
+
+    setPosition(position: Vec3): void {
+        glm.vec3.copy(this._position,position);
+    }
+
+    move(delta: Vec3): void {
+        glm.vec3.add(this._position,this._position,delta);
     }
 
     rotYaw(theta: number): void {
-        glm.quat.rotateY(this._qRotation,this._qRotation,theta);
+        glm.quat.rotateY(this._rotation,this._rotation,theta);
     }
 
     rotPitch(theta: number): void {
@@ -70,59 +101,33 @@ export default class CameraComponent {
 
         const rot = glm.quat.create();
         glm.quat.setAxisAngle(rot,RIGHT,theta);
-        glm.quat.mul(this._qRotation,rot,this._qRotation);
+        glm.quat.mul(this._rotation,rot,this._rotation);
     }
 
-    setAxis(lookAt: Vec3, up: Vec3, right: Vec3): void {
-        glm.quat.setAxes(this._qRotation,lookAt,right,up);
-        if (this._lockPitch) {
-            this._accumPitch = Math.asin(lookAt[1] * -1);
-        }
+
+    getProjectionMatrix(): Mat4 {
+        return glm.mat4.clone(this._projectionMatrix);
     }
 
-    setFocalPoint(focalPoint: Vec3, up: ?Vec3): void {
-        this.setFocalPointAndPosition(focalPoint, this._position, up);
-    }
-
-    setFocalPointAndPosition(focalPoint: Vec3, position: Vec3, upVec: ?Vec3): void {
-        glm.vec3.copy(this._position,position);
-
-        const lookAt = glm.vec3.create();
-        const right = glm.vec3.create();
-        const up = glm.vec3.create();
-        glm.vec3.sub(lookAt,focalPoint,this._position);
-        glm.vec3.normalize(lookAt,lookAt);
-        glm.vec3.cross(right,lookAt,upVec || UP);
-        glm.vec3.normalize(right,right);
-        glm.vec3.cross(up,right,lookAt);
-        glm.vec3.normalize(up,up);
-
-        this.setAxis(lookAt, up, right);
-    }
-
-    setPosition(position: Vec3): void {
-        glm.vec3.copy(this._position,position);
-    }
-
-    move(delta: Vec3): void {
-        glm.vec3.add(this._position,this._position,delta);
+    getPosition(): Vec3 {
+        return glm.vec3.clone(this._position);
     }
 
     getLookAt(): Vec3 {
         const rot = glm.mat3.create();
-        glm.mat3.fromQuat(rot,this._qRotation);
+        glm.mat3.fromQuat(rot,this._rotation);
         return glm.vec3.fromValues(rot[2],rot[5],rot[8]);
     }
 
     getRight(): Vec3 {
         const rot = glm.mat3.create();
-        glm.mat3.fromQuat(rot,this._qRotation);
+        glm.mat3.fromQuat(rot,this._rotation);
         return glm.vec3.fromValues(rot[0],rot[3],rot[6]);
     }
 
     getUp(): Vec3 {
         const rot = glm.mat3.create();
-        glm.mat3.fromQuat(rot,this._qRotation);
+        glm.mat3.fromQuat(rot,this._rotation);
         return glm.vec3.fromValues(rot[1],rot[4],rot[7]);
     }
 
@@ -132,10 +137,12 @@ export default class CameraComponent {
         
         glm.vec3.scale(position,this._position,-1.0);
 
-        return glm.mat4.mul(
-            this._viewMatrix,
-            glm.mat4.fromQuat(glm.mat4.create(),this._qRotation),
-            glm.mat4.fromTranslation(translation,position),
+        return glm.mat4.clone(
+            glm.mat4.mul(
+                this._viewMatrix,
+                glm.mat4.fromQuat(glm.mat4.create(),this._rotation),
+                glm.mat4.fromTranslation(translation,position),
+            )
         );
     }
 }
