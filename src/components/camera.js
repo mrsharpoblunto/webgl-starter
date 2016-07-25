@@ -16,6 +16,7 @@ export default class CameraComponent {
     _fov: number;
     _projectionMatrix: Mat4;
     _viewMatrix: Mat4;
+    _up: Vec3;
 
     constructor(lockPitch: boolean,fov: number,position: Vec3, focalPoint: Vec3) {
         this._lockPitch = lockPitch;
@@ -25,6 +26,7 @@ export default class CameraComponent {
         this._projectionMatrix = glm.mat4.create();
         this._viewMatrix = glm.mat4.create();
         this._rotation = glm.quat.create();
+        this._up = glm.vec3.clone(UP);
         this.setFocalPointAndPosition(
             glm.vec3.fromValues.apply(glm.vec3,focalPoint),
             glm.vec3.fromValues.apply(glm.vec3,position)
@@ -41,33 +43,49 @@ export default class CameraComponent {
         );
     }
 
-    setAxes(lookAt: Vec3, up: Vec3, right: Vec3): void {
+    setUp(up: Vec3,lerp: ?number): void {
+        if (lerp) {
+            glm.vec3.lerp(this._up,this._up,up,lerp);
+        } else {
+            glm.vec3.copy(this._up,up);
+        }
+        glm.vec3.normalize(this._up,this._up);
+    }
+
+    _setAxes(lookAt: Vec3, up: Vec3, right: Vec3): void {
         glm.quat.setAxes(this._rotation,lookAt,right,up);
         if (this._lockPitch) {
             this._accumPitch = Math.asin(lookAt[1] * -1);
         }
     }
 
-    setFocalPoint(focalPoint: Vec3, up: ?Vec3): void {
-        this.setFocalPointAndPosition(focalPoint, this._position, up);
+    setFocalPoint(focalPoint: Vec3, focalLerp: ?number): void {
+        this.setFocalPointAndPosition(focalPoint, this._position, focalLerp);
     }
 
-    setFocalPointAndPosition(focalPoint: Vec3, position: Vec3, upVec: ?Vec3): void {
-        glm.vec3.copy(this._position,position);
+    setFocalPointAndPosition(focalPoint: Vec3, position: Vec3, focalLerp: ?number, positionLerp: ?number): void {
+        if (positionLerp) {
+            glm.vec3.lerp(this._position,this._position,position,positionLerp);
+        } else {
+            glm.vec3.copy(this._position,position);
+        }
 
         const lookAt = glm.vec3.create();
         const right = glm.vec3.create();
         const up = glm.vec3.create();
         glm.vec3.sub(lookAt,focalPoint,this._position);
         glm.vec3.normalize(lookAt,lookAt);
-        glm.vec3.cross(right,lookAt,upVec || UP);
+        if (focalLerp) {
+            const currentLookAt = this.getLookAt();
+            glm.vec3.scale(currentLookAt,currentLookAt,-1);
+            glm.vec3.lerp(lookAt,currentLookAt,lookAt,focalLerp);
+        }
+        glm.vec3.cross(right,lookAt,this._up);
         glm.vec3.normalize(right,right);
         glm.vec3.cross(up,right,lookAt);
-        glm.vec3.normalize(up,up);
 
-        this.setAxes(lookAt, up, right);
+        this._setAxes(lookAt, up, right);
     }
-
     setPosition(position: Vec3): void {
         glm.vec3.copy(this._position,position);
     }

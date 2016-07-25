@@ -58,6 +58,7 @@ export class World {
     _entities: Map<number,Entity>;
     _simSystems: Array<SimSystem>;
     _renderSystems: Array<RenderSystem>;
+    _building: boolean;
 
     constructor(canvas: any,glContext: any,maxWidth: number,aspect: number,fov: number) {
         this._simSystems = [];
@@ -70,6 +71,7 @@ export class World {
         this._maxWidth = maxWidth;
         this._canvas = canvas;
         this._glContext = glContext;
+        this._building = false;
     }
     mountSimSystems(systems: Array<SimSystem>): void {
         for (let system of this._simSystems) {
@@ -156,7 +158,9 @@ export class World {
         } else {
             id = this._nextId++;
         }
+        this._building = true;
         const entity = builder(new Entity(id,this),options);
+        this._building = false;
         this._entities.set(entity.id,entity);
         for (let system of this._simSystems) {
             system.worldAddingEntity(entity);
@@ -177,6 +181,7 @@ export class World {
         this._freeIds.push(entity.id);
     }
     changeEntity(entity: Entity): void {
+        if (this._building) return;
         for (let system of this._simSystems) {
             system.worldRemovingEntity(entity);
             system.worldAddingEntity(entity);
