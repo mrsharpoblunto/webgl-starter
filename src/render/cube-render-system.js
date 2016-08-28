@@ -33,25 +33,21 @@ export default class CubeRenderSystem
     }
 
     worldAddingEntity(entity: Entity): void {
-        const cube = entity.getComponent(Components.CubeComponent.Type);
-        if (cube) {
+        entity.hasComponent(Components.CubeComponent,cube => {
            this._cubes.add(cube);
-        }
-        const camera = entity.getComponent(Components.CameraComponent.Type);
-        if (camera) {
+        });
+        entity.hasComponent(Components.CameraComponent,camera => {
             this._camera = camera;
-        }
+        });
     }
 
     worldRemovingEntity(entity: Entity): void {
-        const cube = entity.getComponent(Components.CubeComponent.Type);
-        if (cube) {
+        entity.hasComponent(Components.CubeComponent,cube => {
            this._cubes.delete(cube);
-        }
-        const camera = entity.getComponent(Components.CameraComponent.Type);
-        if (camera) {
+        });
+        entity.hasComponent(Components.CameraComponent,camera => {
             this._camera = null;
-        }
+        });
     }
 
     render(gl: any, alpha: number): void {

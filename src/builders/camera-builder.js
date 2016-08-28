@@ -5,8 +5,8 @@ import * as Components from 'components';
 type CameraOptions = {
     lockPitch: boolean,
     fov: number,
-    position: Array<number>,
-    focalPoint: Array<number>,
+    position: Vec3,
+    focalPoint: Vec3,
 }
 
 export default function camera(ent: Entity, options: CameraOptions): Entity {

@@ -1,9 +1,6 @@
 /* @flow */
 
 export default class CubeComponent {
-    static Type: string = 'CUBE_COMPONENT';
-    getType(): string { return CubeComponent.Type; }
-
     rotation: number;
     position: Vec3;
 

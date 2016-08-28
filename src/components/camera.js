@@ -6,12 +6,9 @@ const UP = glm.vec3.fromValues(0.0,1.0,0.0);
 const RIGHT = glm.vec3.fromValues(1.0,0.0,0.0);
 
 export default class CameraComponent {
-    static Type: string = 'CAMERA_COMPONENT';
-    getType(): string { return CameraComponent.Type }
-
     _lockPitch: boolean;
     _accumPitch: number;
-    _rotation: Quarternion;
+    _rotation: Quaternion;
     _position: Vec3;
     _fov: number;
     _projectionMatrix: Mat4;
@@ -28,8 +25,8 @@ export default class CameraComponent {
         this._rotation = glm.quat.create();
         this._up = glm.vec3.clone(UP);
         this.setFocalPointAndPosition(
-            glm.vec3.fromValues.apply(glm.vec3,focalPoint),
-            glm.vec3.fromValues.apply(glm.vec3,position)
+            focalPoint,
+            position,
         );
     }
 

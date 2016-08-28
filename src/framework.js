@@ -15,13 +15,9 @@ export interface RenderSystem {
     render(gl: any, alpha: number): void;
 }
 
-export interface Component {
-    getType(): string;
-}
-
 export class Entity {
     id: number;
-    _components: Map<string,any>;
+    _components: Map<any, any>;
     _world: World;
 
     constructor(id:number,world:World) {
@@ -29,21 +25,25 @@ export class Entity {
         this._components = new Map();
         this._world = world;
     }
-    addComponent(component:Component): Entity {
-        this._components.set(component.getType(),component);
+    addComponent(component: Object): Entity {
+        this._components.set(component.constructor,component);
         this._world.changeEntity(this);
         return this;
     }
-    removeComponent(component:any): Entity {
-        this._components.delete(component.getType());
+    removeComponent(component: Object): Entity {
+        this._components.delete(component.constructor);
         this._world.changeEntity(this);
         return this;
     }
-    getComponent(type: string): any {
-        return this._components.get(type);
+    getComponent<C: Object>(componentClass: Class<C>): ?C {
+        return this._components.get(componentClass);
     }
-    hasComponent(type: string): boolean {
-        return !!this._components.get(type);
+    hasComponent<C: Object>(componentClass: Class<C>,fn: (componentInstance: C) => any): boolean {
+        const componentInstance = this._components.get(componentClass);
+        if (componentInstance) {
+            fn(componentInstance);
+        }
+        return !!componentInstance;
     }
 }
 

@@ -18,16 +18,14 @@ export default class CubeSystem {
     }
 
     worldAddingEntity(entity: Entity): void {
-        const cube = entity.getComponent(Components.CubeComponent.Type);
-        if (cube) {
+        entity.hasComponent(Components.CubeComponent,cube => {
            this._cubes.add(cube);
-        }
+        });
     }
     worldRemovingEntity(entity: Entity): void {
-        const cube = entity.getComponent(Components.CubeComponent.Type);
-        if (cube) {
+        entity.hasComponent(Components.CubeComponent,cube => {
            this._cubes.delete(cube);
-        }
+        });
     }
     simulate(timestep: number): void {
         for (const cube of this._cubes) {

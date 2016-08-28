@@ -34,17 +34,15 @@ export default class CameraSystem {
     }
 
     worldAddingEntity(entity: Entity): void {
-        const camera = entity.getComponent(Components.CameraComponent.Type);
-        if (camera) {
+        entity.hasComponent(Components.CameraComponent,camera => {
             this._camera = camera;
-        }
+        });
     }
 
     worldRemovingEntity(entity: Entity): void {
-        const camera = entity.getComponent(Components.CameraComponent.Type);
-        if (camera) {
+        entity.hasComponent(Components.CameraComponent,camera => {
             this._camera = null;
-        }
+        });
     }
 
     handleKeyDown = (e: any) => {
